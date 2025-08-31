@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Search, TrendingUp, TrendingDown, Minus, Star, Award } from 'lucide-react';
-import { atpPlayers } from '../data/players';
+import { apiRequest, convertRankingPlayerToPlayer } from '../lib/queryClient';
 import { calculatePlayerScore, getPlayerFormTrend } from '../utils/scoring';
+import { RankingPlayer, Player } from '../types';
 
 export const PlayersView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'ranking' | 'score' | 'form'>('ranking');
 
-  const filteredPlayers = atpPlayers
+  // Fetch players from API
+  const { data: rankingPlayers = [], isLoading, error } = useQuery<RankingPlayer[]>({
+    queryKey: ['/api/players'],
+    queryFn: () => apiRequest('/api/players'),
+  });
+
+  // Convert ranking players to UI format
+  const players = rankingPlayers.map(convertRankingPlayerToPlayer);
+
+  const filteredPlayers = players
     .filter(player => 
       player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       player.country.toLowerCase().includes(searchTerm.toLowerCase())
@@ -26,6 +37,35 @@ export const PlayersView: React.FC = () => {
           return 0;
       }
     });
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
+          <div className="animate-pulse">
+            <div className="h-12 bg-gray-700/50 rounded-lg mb-4"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-48 bg-gray-700/50 rounded-xl"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-6 text-center">
+          <p className="text-red-400">Failed to load players. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

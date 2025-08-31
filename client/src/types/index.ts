@@ -10,6 +10,14 @@ export interface Player {
   image: string;
 }
 
+export interface RankingPlayer {
+  id: number;
+  ranking: number;
+  jugador: string;
+  pais: string;
+  cotizacion: number;
+}
+
 export interface User {
   id: number;
   username: string;
