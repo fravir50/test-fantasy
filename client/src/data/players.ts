@@ -3,8 +3,8 @@ import { Player } from '../types';
 export const atpPlayers: Player[] = [
   {
     id: 1,
-    name: "Novak Djokovic",
-    country: "Serbia",
+    name: "Alexandr Dolgopolov",
+    country: "Ukraine",
     atpRanking: 1,
     points: 9945,
     age: 36,
